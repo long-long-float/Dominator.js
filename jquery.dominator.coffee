@@ -6,26 +6,17 @@ do (jQuery) ->
 
     $(@).css(cursor: 'crosshair')
 
-    ###
-    $svg = $(document.createElement('svg'))
-        .attr(width: 500, height: 500)
-        .append(
-          $(document.createElement('circle'))
-            .attr(
-              cx: 0, cy: 0, r: 30,
-              stroke: 'white', 'stroke-width': 4))
-    $(@).append $svg
-    ###
-
-    $('body').svg
-      onLoad: (svg) ->
-        svg.circle 100, 100, 60,
-          fill: 'none', stroke: 'white', strokeWidth: 2
-    svg = $('body').svg('get').root()
+    $canvas = $('<canvas>')
+      .attr(width: 500, height: 500)
+      .css(position: 'absolute')
+    $('body').append $canvas
+    context = $canvas.get(0).getContext('2d')
+    context.fillStyle = '#FFF'
+    context.fillRect(0, 0, 100, 100)
 
     document.onmousemove = (event) ->
-      console.log event
-      svg.style.left = event.x
-      svg.style.top  = event.y
+      offsetX = 50
+      offsetY = 50
+      $canvas.css(left: "#{event.clientX + offsetX}px", top: "#{event.clientY + offsetY}px")
 
     return @

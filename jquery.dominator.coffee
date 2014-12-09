@@ -15,32 +15,37 @@ do (jQuery) ->
     $('body').append $canvas
     context = $canvas.get(0).getContext('2d')
 
+    drawText = (text, fontSize, x, y) ->
+      context.font = "italic #{fontSize}px Arial Hebrew"
+      context.fillText(text, x, y)
+      context.strokeText(text, x, y)
+
     update = ->
       context.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
 
-      context.strokeStyle = '#FFF'
-      context.lineWidth = 1.5
       context.beginPath()
+      context.strokeStyle = '#000'
+      context.lineWidth   = 2
       context.arc(CIRCLE_RADIUS + 1, CIRCLE_RADIUS + 1, CIRCLE_RADIUS, 0, Math.PI * 2, false)
       context.stroke()
 
-      context.fillStyle = '#FFF'
+      context.beginPath()
+      context.strokeStyle = '#FFF'
+      context.lineWidth   = 1
+      context.arc(CIRCLE_RADIUS + 1, CIRCLE_RADIUS + 1, CIRCLE_RADIUS, 0, Math.PI * 2, false)
+      context.stroke()
 
-      context.font = 'italic 10px Arial Hebrew'
-      context.fillText('CRIME COEFFICIENT:', CIRCLE_RADIUS, CIRCLE_RADIUS - 25)
+      context.fillStyle   = '#FFF'
+      context.strokeStyle = '#000'
+      context.lineWidth   = 0.5
 
-      context.font = 'italic 40px Arial Hebrew'
-      context.fillText('299.0 -', CIRCLE_RADIUS, CIRCLE_RADIUS)
+      drawText('CRIME COEFFICIENT:', 10, CIRCLE_RADIUS, CIRCLE_RADIUS - 25)
+      drawText('299.0 -', 40, CIRCLE_RADIUS, CIRCLE_RADIUS)
       w = context.measureText('299.0 -').width
+      drawText('300', 25, CIRCLE_RADIUS + w + 10, CIRCLE_RADIUS)
 
-      context.font = 'italic 25px Arial Hebrew'
-      context.fillText('300', CIRCLE_RADIUS + w + 10, CIRCLE_RADIUS)
-
-      context.font = 'italic 10px Arial Hebrew'
-      context.fillText('TARGET:', CIRCLE_RADIUS, CIRCLE_RADIUS * 1.6 - 20)
-
-      context.font = 'italic 20px Arial Hebrew'
-      context.fillText('Not Target', CIRCLE_RADIUS, CIRCLE_RADIUS * 1.6)
+      drawText('TARGET:', 10, CIRCLE_RADIUS, CIRCLE_RADIUS * 1.6 - 20)
+      drawText('Not Target', 20, CIRCLE_RADIUS, CIRCLE_RADIUS * 1.6)
 
     setInterval update, 100
 

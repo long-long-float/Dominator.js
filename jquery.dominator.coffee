@@ -68,6 +68,16 @@ do (jQuery) ->
         context.arc(0, 0, CIRCLE_RADIUS, 0, Math.PI * 2, false)
         context.stroke()
 
+      contextState -> #indicator
+        context.translate(-CIRCLE_RADIUS * 2, CIRCLE_RADIUS * 4)
+
+        context.fillStyle = '#F00'
+
+        context.rotate((1 / 4 - 2 / 20) * Math.PI)
+        for i in [1..3]
+          context.rotate(1 / 25 * Math.PI)
+          context.fillRect(0, -CIRCLE_RADIUS * 4, 20, 30)
+
       contextState -> #text
         context.translate(CIRCLE_RADIUS, CIRCLE_RADIUS - 25)
 

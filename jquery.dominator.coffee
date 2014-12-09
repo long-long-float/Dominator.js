@@ -6,13 +6,16 @@ do (jQuery) ->
 
     $(@).css(cursor: 'crosshair')
 
+    CANVAS_WIDTH  = 150
+    CANVAS_HEIGHT = 150
     $canvas = $('<canvas>')
-      .attr(width: 500, height: 500)
+      .attr(width: CANVAS_WIDTH, height: CANVAS_HEIGHT)
       .css(position: 'absolute')
     $('body').append $canvas
     context = $canvas.get(0).getContext('2d')
-    context.fillStyle = '#FFF'
-    context.fillRect(0, 0, 100, 100)
+    context.strokeStyle = '#FFF'
+    context.arc(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2, CANVAS_WIDTH / 2 - 2, 0, Math.PI * 2, false)
+    context.stroke()
 
     document.onmousemove = (event) ->
       offsetX = 50

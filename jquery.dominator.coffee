@@ -15,10 +15,24 @@ do (jQuery) ->
     $('body').append $canvas
     context = $canvas.get(0).getContext('2d')
 
-    drawText = (text, fontSize, x, y) ->
+    drawText = (text, fontSize, x, y, stroke = true) ->
       context.font = "italic #{fontSize}px Arial Hebrew"
       context.fillText(text, x, y)
-      context.strokeText(text, x, y)
+      context.strokeText(text, x, y) if stroke
+
+    drawTextWithBanner = (text, fontSize, x, y) ->
+      context.font = "italic #{fontSize}px Arial Hebrew"
+      w = context.measureText(text).width
+      console.log text, w
+      grad = context.createLinearGradient(x, 0, x + w * 1.5, 0)
+      grad.addColorStop(0, 'rgba(0, 0, 0, 0.5)')
+      grad.addColorStop(1, 'rgba(0, 0, 0, 0)')
+      oldStyle = context.fillStyle
+      context.fillStyle = grad
+      context.fillRect(x - 5, y - 10, w * 1.5, 13)
+
+      context.fillStyle = oldStyle
+      drawText(text, fontSize, x, y, false)
 
     update = ->
       context.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
@@ -39,12 +53,12 @@ do (jQuery) ->
       context.strokeStyle = '#000'
       context.lineWidth   = 0.5
 
-      drawText('CRIME COEFFICIENT:', 10, CIRCLE_RADIUS, CIRCLE_RADIUS - 25)
+      drawTextWithBanner('CRIME COEFFICIENT:', 10, CIRCLE_RADIUS, CIRCLE_RADIUS - 25)
       drawText('299.0 -', 40, CIRCLE_RADIUS, CIRCLE_RADIUS)
       w = context.measureText('299.0 -').width
       drawText('300', 25, CIRCLE_RADIUS + w + 10, CIRCLE_RADIUS)
 
-      drawText('TARGET:', 10, CIRCLE_RADIUS, CIRCLE_RADIUS * 1.6 - 20)
+      drawTextWithBanner('TARGET:', 10, CIRCLE_RADIUS, CIRCLE_RADIUS * 1.6 - 20)
       drawText('Not Target', 20, CIRCLE_RADIUS, CIRCLE_RADIUS * 1.6)
 
     setInterval update, 100

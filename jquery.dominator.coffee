@@ -15,59 +15,80 @@ do (jQuery) ->
     $('body').append $canvas
     context = $canvas.get(0).getContext('2d')
 
-    drawText = (text, fontSize, x, y, stroke = true) ->
+    drawText = (text, fontSize, stroke = true) ->
       context.font = "italic #{fontSize}px Arial Hebrew"
-      context.fillText(text, x, y)
-      context.strokeText(text, x, y) if stroke
+      context.fillText(text, 0, 0)
+      context.strokeText(text, 0, 0) if stroke
 
-    drawTextWithBanner = (text, fontSize, x, y) ->
-      context.font = "italic #{fontSize}px Arial Hebrew"
-      w = context.measureText(text).width
-      console.log text, w
-      grad = context.createLinearGradient(x, 0, x + w * 1.5, 0)
-      grad.addColorStop(0, 'rgba(0, 0, 0, 0.5)')
-      grad.addColorStop(1, 'rgba(0, 0, 0, 0)')
-      oldStyle = context.fillStyle
-      context.fillStyle = grad
-      context.fillRect(x - 5, y - 10, w * 1.5, 13)
+    drawTextWithBanner = (text, fontSize) ->
+      contextState ->
+        context.font = "italic #{fontSize}px Arial Hebrew"
+        w = context.measureText(text).width
+        grad = context.createLinearGradient(0, 0, w * 1.5, 0)
+        grad.addColorStop(0, 'rgba(0, 0, 0, 0.5)')
+        grad.addColorStop(1, 'rgba(0, 0, 0, 0)')
+        context.fillStyle = grad
+        context.fillRect(-5, -10, w * 1.5, 13)
+      drawText text, fontSize, false
 
-      context.fillStyle = oldStyle
-      drawText(text, fontSize, x, y, false)
+    contextState = (func) ->
+      context.save()
+      func()
+      context.restore()
 
     update = ->
       context.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
 
-      grad = context.createRadialGradient(CIRCLE_RADIUS - 5, CIRCLE_RADIUS + 5, 0, CIRCLE_RADIUS - 5, CIRCLE_RADIUS + 5, CIRCLE_RADIUS - 10)
-      grad.addColorStop(0, 'rgba(0, 0, 0, 0)')
-      grad.addColorStop(1, 'rgba(0, 0, 0, 0.2)')
-      context.fillStyle = grad
-      context.beginPath()
-      context.arc(CIRCLE_RADIUS - 5, CIRCLE_RADIUS + 5, CIRCLE_RADIUS - 10, 0, Math.PI * 2)
-      context.fill()
+      contextState -> #background circle
+        context.translate(CIRCLE_RADIUS - 5, CIRCLE_RADIUS + 5)
 
-      context.beginPath()
-      context.strokeStyle = '#000'
-      context.lineWidth   = 2
-      context.arc(CIRCLE_RADIUS + 1, CIRCLE_RADIUS + 1, CIRCLE_RADIUS, 0, Math.PI * 2, false)
-      context.stroke()
+        grad = context.createRadialGradient(0, 0, 0, 0, 0, CIRCLE_RADIUS - 10)
+        grad.addColorStop(0, 'rgba(0, 0, 0, 0)')
+        grad.addColorStop(1, 'rgba(0, 0, 0, 0.2)')
+        context.fillStyle = grad
 
-      context.beginPath()
-      context.strokeStyle = '#FFF'
-      context.lineWidth   = 1
-      context.arc(CIRCLE_RADIUS + 1, CIRCLE_RADIUS + 1, CIRCLE_RADIUS, 0, Math.PI * 2, false)
-      context.stroke()
+        context.beginPath()
+        context.arc(0, 0, CIRCLE_RADIUS - 10, 0, Math.PI * 2)
+        context.fill()
 
-      context.fillStyle   = '#FFF'
-      context.strokeStyle = '#000'
-      context.lineWidth   = 0.5
+      contextState -> #foreground circle
+        context.translate(CIRCLE_RADIUS + 1, CIRCLE_RADIUS + 1)
 
-      drawTextWithBanner('CRIME COEFFICIENT:', 10, CIRCLE_RADIUS, CIRCLE_RADIUS - 25)
-      drawText('299.0 -', 40, CIRCLE_RADIUS, CIRCLE_RADIUS)
-      w = context.measureText('299.0 -').width
-      drawText('300', 25, CIRCLE_RADIUS + w + 10, CIRCLE_RADIUS)
+        context.strokeStyle = '#000'
+        context.lineWidth   = 2
 
-      drawTextWithBanner('TARGET:', 10, CIRCLE_RADIUS, CIRCLE_RADIUS * 1.6 - 20)
-      drawText('Not Target', 20, CIRCLE_RADIUS, CIRCLE_RADIUS * 1.6)
+        context.beginPath()
+        context.arc(0, 0, CIRCLE_RADIUS, 0, Math.PI * 2, false)
+        context.stroke()
+
+        context.strokeStyle = '#FFF'
+        context.lineWidth   = 1
+
+        context.beginPath()
+        context.arc(0, 0, CIRCLE_RADIUS, 0, Math.PI * 2, false)
+        context.stroke()
+
+      contextState -> #text
+        context.translate(CIRCLE_RADIUS, CIRCLE_RADIUS - 25)
+
+        context.fillStyle   = '#FFF'
+        context.strokeStyle = '#000'
+        context.lineWidth   = 0.5
+
+        drawTextWithBanner('CRIME COEFFICIENT:', 10)
+
+        context.translate(0, 30)
+        drawText('299.0 -', 40)
+        contextState ->
+          w = context.measureText('299.0 -').width
+          context.translate(w + 10, 0)
+          drawText('300', 25)
+
+        context.translate(0, 20)
+        drawTextWithBanner('TARGET:', 10)
+
+        context.translate(0, 20)
+        drawText('Not Target', 20)
 
     setInterval update, 100
 

@@ -8,14 +8,22 @@ do (jQuery) ->
 
     CANVAS_WIDTH  = 150
     CANVAS_HEIGHT = 150
+    CIRCLE_RADIUS = 70
     $canvas = $('<canvas>')
       .attr(width: CANVAS_WIDTH, height: CANVAS_HEIGHT)
       .css(position: 'absolute')
     $('body').append $canvas
     context = $canvas.get(0).getContext('2d')
-    context.strokeStyle = '#FFF'
-    context.arc(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2, CANVAS_WIDTH / 2 - 2, 0, Math.PI * 2, false)
-    context.stroke()
+
+    update = ->
+      context.strokeStyle = '#FFF'
+      context.arc(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2, CIRCLE_RADIUS, 0, Math.PI * 2, false)
+      context.stroke()
+
+      context.fillStyle = '#FFF'
+      context.fillText('300', CIRCLE_RADIUS, CIRCLE_RADIUS)
+
+    setInterval update, 100
 
     document.onmousemove = (event) ->
       offsetX = 50

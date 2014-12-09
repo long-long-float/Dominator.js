@@ -37,6 +37,14 @@ do (jQuery) ->
     update = ->
       context.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
 
+      grad = context.createRadialGradient(CIRCLE_RADIUS - 5, CIRCLE_RADIUS + 5, 0, CIRCLE_RADIUS - 5, CIRCLE_RADIUS + 5, CIRCLE_RADIUS - 10)
+      grad.addColorStop(0, 'rgba(0, 0, 0, 0)')
+      grad.addColorStop(1, 'rgba(0, 0, 0, 0.2)')
+      context.fillStyle = grad
+      context.beginPath()
+      context.arc(CIRCLE_RADIUS - 5, CIRCLE_RADIUS + 5, CIRCLE_RADIUS - 10, 0, Math.PI * 2)
+      context.fill()
+
       context.beginPath()
       context.strokeStyle = '#000'
       context.lineWidth   = 2

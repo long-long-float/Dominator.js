@@ -56,6 +56,14 @@ do (jQuery) ->
           'Execution'
         else
           'Not Target'
+      getIndicatorColor: ->
+        ccc = @crimeCoefficient.current
+        if ccc < 160
+          '#00F2D5'
+        else if ccc < 300
+          '#FF9900'
+        else
+          '#FF0000'
 
     mousePos =
       x: 0
@@ -104,7 +112,7 @@ do (jQuery) ->
       contextState -> #indicator
         context.translate(-CIRCLE_RADIUS * 2, CIRCLE_RADIUS * 4)
 
-        context.fillStyle = '#F00'
+        context.fillStyle = dominator.getIndicatorColor()
 
         context.rotate((1 / 4 - 2 / 20) * Math.PI)
         for i in [1..3]

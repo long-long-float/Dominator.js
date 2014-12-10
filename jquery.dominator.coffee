@@ -73,9 +73,10 @@ do (jQuery) ->
       dominator.crimeCoefficient.update()
 
       pointedElem = document.elementFromPoint(mousePos.x, mousePos.y)
-      if pointedElem.tagName.toLowerCase() == 'a'
-        hash = parseInt(md5(pointedElem.href), 16)
-        dominator.crimeCoefficient.current = hash % 1000
+      if pointedElem
+        if pointedElem.tagName.toLowerCase() == 'a'
+          hash = parseInt(md5(pointedElem.href), 16)
+          dominator.crimeCoefficient.current = hash % 1000
 
     draw = ->
       context.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)

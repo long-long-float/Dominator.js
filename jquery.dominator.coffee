@@ -45,16 +45,23 @@ do (jQuery) ->
       goal   : 0
       current: 0
       update : ->
-        @current = Math.min(@current + 2, @goal)
+        @current = Math.min(@current + 100, @goal)
       toString: ->
         str = (Math.floor(@current.toString() * 10) / 10).toString()
         str += '.0' if @current == parseInt(@current)
         ('   ' + str).slice(-5)
 
-    crimeCoefficient.goal = 299.0
+    mousePos =
+      x: 0
+      y: 0
 
     update = ->
       crimeCoefficient.update()
+
+      pointedElem = document.elementFromPoint(mousePos.x, mousePos.y)
+      if pointedElem.tagName.toLowerCase() == 'a'
+        hash = parseInt(md5(pointedElem.href), 16)
+        crimeCoefficient.current = hash % 1000
 
     draw = ->
       context.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
@@ -134,5 +141,8 @@ do (jQuery) ->
       offsetX = 50
       offsetY = 50
       $canvas.css(left: "#{event.clientX + offsetX}px", top: "#{event.clientY + offsetY}px")
+
+      mousePos.x = event.clientX
+      mousePos.y = event.clientY
 
     return @

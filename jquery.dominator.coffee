@@ -41,27 +41,33 @@ do (jQuery) ->
         context.fillRect(-5, -10, w * 1.5, 13)
       drawText text, fontSize, false
 
-    crimeCoefficient =
-      goal   : 0
-      current: 0
-      update : ->
-        @current = Math.min(@current + 100, @goal)
-      toString: ->
-        str = (Math.floor(@current.toString() * 10) / 10).toString()
-        str += '.0' if @current == parseInt(@current)
-        ('   ' + str).slice(-5)
+    dominator =
+      crimeCoefficient:
+        goal   : 0
+        current: 0
+        update : ->
+          @current = Math.min(@current + 100, @goal)
+        toString: ->
+          str = (Math.floor(@current.toString() * 10) / 10).toString()
+          str += '.0' if @current == parseInt(@current)
+          ('   ' + str).slice(-5)
+      getTargetState: ->
+        if @crimeCoefficient.current >= 300
+          'Execution'
+        else
+          'Not Target'
 
     mousePos =
       x: 0
       y: 0
 
     update = ->
-      crimeCoefficient.update()
+      dominator.crimeCoefficient.update()
 
       pointedElem = document.elementFromPoint(mousePos.x, mousePos.y)
       if pointedElem.tagName.toLowerCase() == 'a'
         hash = parseInt(md5(pointedElem.href), 16)
-        crimeCoefficient.current = hash % 1000
+        dominator.crimeCoefficient.current = hash % 1000
 
     draw = ->
       context.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
@@ -116,7 +122,7 @@ do (jQuery) ->
 
         context.translate(0, 30)
         contextState ->
-          cc = crimeCoefficient.toString()
+          cc = dominator.crimeCoefficient.toString()
           w = getTextWidth(cc, 40)
           context.translate(110 - w, 0)
           drawText(cc, 40)
@@ -130,7 +136,7 @@ do (jQuery) ->
         drawTextWithBanner('TARGET:', 10)
 
         context.translate(0, 20)
-        drawText('Not Target', 20)
+        drawText(dominator.getTargetState(), 20)
 
     setInterval (->
       update()

@@ -64,6 +64,18 @@ do (jQuery) ->
           '#FF9900'
         else
           '#FF0000'
+      getCCBorder: ->
+        borders = [0, 160, 300]
+        ccc = @crimeCoefficient.current
+        result = 0
+        minDiff = Infinity
+        for border in borders
+          diff = Math.abs(border - ccc)
+          if diff < minDiff
+            result = border
+            minDiff = diff
+
+        return result
 
     mousePos =
       x: 0
@@ -139,7 +151,7 @@ do (jQuery) ->
           context.translate(w, 0)
           drawText('-', 40)
           context.translate(context.measureText('-').width, 0)
-          drawText('300', 25)
+          drawText(dominator.getCCBorder(), 25)
 
         context.translate(0, 20)
         drawTextWithBanner('TARGET:', 10)

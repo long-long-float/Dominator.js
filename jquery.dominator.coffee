@@ -64,6 +64,7 @@ do (jQuery) ->
           '#FF9900'
         else
           '#FF0000'
+      currentIndicatorColor: '#000000'
       getCCBorder: ->
         borders = [0, 160, 300]
         ccc = @crimeCoefficient.current
@@ -81,6 +82,23 @@ do (jQuery) ->
       x: 0
       y: 0
 
+    animations =
+      # [[animation, locals]]
+      contents: []
+      # animation: function
+      #   アニメーション終了時、trueを返せばanimationsから消滅する
+      commitAnimation: (locals, animation) ->
+        @contents.push [animation, locals]
+      removeAnimation: (index) ->
+        @contents = @contents.filter (_, i) -> i == index
+      update: ->
+        deleteIndexes = []
+        for [animation, locals], i in @contents
+          if animation.call(locals)
+            deleteIndexes.push i
+
+        @contents = @contents.filter (_, i) -> !(i in deleteIndexes)
+
     update = ->
       dominator.crimeCoefficient.update()
 
@@ -92,6 +110,8 @@ do (jQuery) ->
 
     draw = ->
       context.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
+
+      animations.update()
 
       contextState -> #background circle
         context.translate(CIRCLE_RADIUS - 5, CIRCLE_RADIUS + 5)
@@ -123,14 +143,27 @@ do (jQuery) ->
         context.stroke()
 
       contextState -> #indicator
-        context.translate(-CIRCLE_RADIUS * 2, CIRCLE_RADIUS * 4)
+        ci = dominator.getIndicatorColor()
+        animeId = null
+        if ci != dominator.currentIndicatorColor
+          dominator.currentIndicatorColor = ci
 
-        context.fillStyle = dominator.getIndicatorColor()
+          animations.removeAnimation animeId
+          animeId = animations.commitAnimation {radian: 0}, ->
+            contextState =>
+              context.translate(-CIRCLE_RADIUS * 2, CIRCLE_RADIUS * 4)
 
-        context.rotate((1 / 4 - 2 / 20) * Math.PI)
-        for i in [1..3]
-          context.rotate(1 / 25 * Math.PI)
-          context.fillRect(0, -CIRCLE_RADIUS * 4, 20, 30)
+              context.rotate(@radian)
+              context.fillStyle = dominator.currentIndicatorColor
+
+              for i in [1..3]
+                context.rotate(1 / 25 * Math.PI)
+                context.fillRect(0, -CIRCLE_RADIUS * 4, 20, 30)
+
+              if @radian < (1 / 4 - 2 / 20) * Math.PI
+                @radian += 1 / 20 * Math.PI
+
+              return false
 
       contextState -> #text
         context.translate(CIRCLE_RADIUS, CIRCLE_RADIUS - 25)
@@ -162,7 +195,7 @@ do (jQuery) ->
     setInterval (->
       update()
       draw()
-    ), 100
+    ), 1000 / 30
 
     document.onmousemove = (event) ->
       offsetX = 50

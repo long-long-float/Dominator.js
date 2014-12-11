@@ -42,6 +42,22 @@ do (jQuery) ->
       drawText text, fontSize, false
 
     dominator =
+      CCBORDERS: [
+        {
+          value  : 0
+          message: 'Not Target'
+          color  : '#00F2D5'
+        },
+        {
+          value  : 160
+          message: 'Execution'
+          color  : '#FF9900'
+        },
+        {
+          value  : 300
+          message: 'Execution'
+          color  : '#FF0000'
+        }]
       crimeCoefficient:
         goal   : 0
         current: 0
@@ -52,28 +68,22 @@ do (jQuery) ->
           str += '.0' if @current == parseInt(@current)
           ('   ' + str).slice(-5)
       getTargetState: ->
-        if @crimeCoefficient.current >= 300
-          'Execution'
-        else
-          'Not Target'
+        @getMaxCCBorder().message
       getIndicatorColor: ->
-        ccc = @crimeCoefficient.current
-        if ccc < 160
-          '#00F2D5'
-        else if ccc < 300
-          '#FF9900'
-        else
-          '#FF0000'
+        @getMaxCCBorder().color
       currentIndicatorColor: '#000000'
+      getMaxCCBorder: ->
+        ccc = @crimeCoefficient.current
+        for border in @CCBORDERS by -1
+          return border if ccc >= border.value
       getCCBorder: ->
-        borders = [0, 160, 300]
         ccc = @crimeCoefficient.current
         result = 0
         minDiff = Infinity
-        for border in borders
-          diff = Math.abs(border - ccc)
+        for border in @CCBORDERS
+          diff = Math.abs(border.value - ccc)
           if diff < minDiff
-            result = border
+            result = border.value
             minDiff = diff
 
         return result

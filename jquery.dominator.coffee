@@ -145,7 +145,7 @@ do (jQuery) ->
         contextState ->
           cc = dominator.crimeCoefficient.toString()
           w = getTextWidth(cc, 40)
-          context.translate(110 - w, 0)
+          context.translate(90 - w, 0)
           drawText(cc, 40)
 
           context.translate(w, 0)

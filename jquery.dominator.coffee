@@ -59,7 +59,11 @@ do (jQuery) ->
           color  : '#FF0000'
         }]
       crimeCoefficient:
+        prevValue: 0
         value: 0
+        setValue: (value) ->
+          @prevValue = @value
+          @value = value
         toString: ->
           str = (Math.floor(@value.toString() * 10) / 10).toString()
           str += '.0' if @value == parseInt(@value)
@@ -111,9 +115,9 @@ do (jQuery) ->
       if pointedElem
         if pointedElem.tagName.toLowerCase() == 'a'
           hash = parseInt(md5(pointedElem.href), 16)
-          dominator.crimeCoefficient.value = hash % 1000
+          dominator.crimeCoefficient.setValue(hash % 1000)
         else
-          dominator.crimeCoefficient.value = 0
+          dominator.crimeCoefficient.setValue(0)
 
     draw = ->
       context.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)

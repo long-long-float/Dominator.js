@@ -27,9 +27,10 @@ do (jQuery) ->
         context.measureText(text).width
 
     drawText = (text, fontSize, stroke = true) ->
-      context.font = "italic #{fontSize}px Arial Hebrew"
-      context.fillText(text, 0, 0)
-      context.strokeText(text, 0, 0) if stroke
+      contextState ->
+        context.font = "italic #{fontSize}px Arial Hebrew"
+        context.fillText(text, 0, 0)
+        context.strokeText(text, 0, 0) if stroke
 
     drawTextWithBanner = (text, fontSize) ->
       contextState ->
@@ -182,7 +183,7 @@ do (jQuery) ->
 
           context.translate(w, 0)
           drawText('-', 40)
-          context.translate(context.measureText('-').width, 0)
+          context.translate(getTextWidth('-', 40), 0)
           drawText(dominator.getCCBorder(), 25)
 
         context.translate(0, 20)

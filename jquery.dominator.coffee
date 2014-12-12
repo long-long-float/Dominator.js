@@ -59,13 +59,10 @@ do (jQuery) ->
           color  : '#FF0000'
         }]
       crimeCoefficient:
-        goal   : 0
-        current: 0
-        update : ->
-          @current = Math.min(@current + 100, @goal)
+        value: 0
         toString: ->
-          str = (Math.floor(@current.toString() * 10) / 10).toString()
-          str += '.0' if @current == parseInt(@current)
+          str = (Math.floor(@value.toString() * 10) / 10).toString()
+          str += '.0' if @value == parseInt(@value)
           ('   ' + str).slice(-5)
       getTargetState: ->
         @getMaxCCBorder().message
@@ -73,11 +70,11 @@ do (jQuery) ->
         @getMaxCCBorder().color
       currentIndicatorColor: '#000000'
       getMaxCCBorder: ->
-        ccc = @crimeCoefficient.current
+        ccc = @crimeCoefficient.value
         for border in @CCBORDERS by -1
           return border if ccc >= border.value
       getCCBorder: ->
-        ccc = @crimeCoefficient.current
+        ccc = @crimeCoefficient.value
         result = 0
         minDiff = Infinity
         for border in @CCBORDERS
@@ -110,13 +107,13 @@ do (jQuery) ->
         @contents = @contents.filter (_, i) -> !(i in deleteIndexes)
 
     update = ->
-      dominator.crimeCoefficient.update()
-
       pointedElem = document.elementFromPoint(mousePos.x, mousePos.y)
       if pointedElem
         if pointedElem.tagName.toLowerCase() == 'a'
           hash = parseInt(md5(pointedElem.href), 16)
-          dominator.crimeCoefficient.current = hash % 1000
+          dominator.crimeCoefficient.value = hash % 1000
+        else
+          dominator.crimeCoefficient.value = 0
 
     draw = ->
       context.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)

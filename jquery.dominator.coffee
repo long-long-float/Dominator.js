@@ -93,22 +93,10 @@ do (jQuery) ->
       x: 0
       y: 0
 
-    animations =
-      # [[animation, locals]]
-      contents: []
-      # animation: function
-      #   アニメーション終了時、trueを返せばanimationsから消滅する
-      commitAnimation: (locals, animation) ->
-        @contents.push [animation, locals]
-      removeAnimation: (index) ->
-        @contents = @contents.filter (_, i) -> i == index
+    class Animation
+      constructor: (@locals, @updater) ->
       update: ->
-        deleteIndexes = []
-        for [animation, locals], i in @contents
-          if animation.call(locals)
-            deleteIndexes.push i
-
-        @contents = @contents.filter (_, i) -> !(i in deleteIndexes)
+        @updater.call(@locals)
 
     update = ->
       pointedElem = document.elementFromPoint(mousePos.x, mousePos.y)
@@ -119,10 +107,10 @@ do (jQuery) ->
         else
           dominator.crimeCoefficient.setValue(0)
 
+    indicateAnime = null
+
     draw = ->
       context.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
-
-      animations.update()
 
       contextState -> #background circle
         context.translate(CIRCLE_RADIUS - 5, CIRCLE_RADIUS + 5)
@@ -155,12 +143,10 @@ do (jQuery) ->
 
       contextState -> #indicator
         ci = dominator.getIndicatorColor()
-        animeId = null
         if ci != dominator.currentIndicatorColor
           dominator.currentIndicatorColor = ci
 
-          animations.removeAnimation animeId
-          animeId = animations.commitAnimation {radian: 0}, ->
+          indicateAnime = new Animation {radian: 0}, ->
             contextState =>
               context.translate(-CIRCLE_RADIUS * 2, CIRCLE_RADIUS * 4)
 
@@ -175,6 +161,8 @@ do (jQuery) ->
                 @radian += 1 / 20 * Math.PI
 
               return false
+
+        indicateAnime.update()
 
       contextState -> #text
         context.translate(CIRCLE_RADIUS, CIRCLE_RADIUS - 25)

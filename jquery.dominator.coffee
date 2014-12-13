@@ -65,10 +65,20 @@ do (jQuery) ->
         setValue: (value) ->
           @prevValue = @value
           @value = value
-        toString: ->
+        isChanged: ->
+          @prevValue != @value
+        toString: (opts) ->
+          opts = $.extend {
+              padding: true
+            }, opts
+
           str = (Math.floor(@value.toString() * 10) / 10).toString()
           str += '.0' if @value == parseInt(@value)
-          ('   ' + str).slice(-5)
+
+          if opts?.padding
+            ('   ' + str).slice(-5)
+          else
+            str
       getTargetState: ->
         @getMaxCCBorder().message
       getIndicatorColor: ->
@@ -109,6 +119,7 @@ do (jQuery) ->
           dominator.crimeCoefficient.setValue(0)
 
     indicateAnime = null
+    updateCCAnime = null
 
     draw = ->
       context.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
@@ -181,7 +192,21 @@ do (jQuery) ->
           context.translate(90 - w, 0)
           drawText(cc, 40)
 
-          context.translate(w, 0)
+          context.translate(w - 90, 0)
+          if dominator.crimeCoefficient.isChanged()
+            updateCCAnime = new Animation {opaque: 1}, ->
+              contextState =>
+                context.fillStyle = "rgba(0, 242, 213, #{@opaque})"
+
+                w = getTextWidth(dominator.crimeCoefficient.toString(padding: false), 40)
+                context.translate(92 - w, -26)
+                context.fillRect(0, 0, w, 30)
+
+                @opaque -= 0.1 if @opaque != 0
+
+          updateCCAnime?.update()
+
+          context.translate(90, 0)
           drawText('-', 40)
           context.translate(getTextWidth('-', 40), 0)
           drawText(dominator.getCCBorder(), 25)

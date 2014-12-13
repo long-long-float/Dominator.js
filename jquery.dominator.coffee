@@ -68,36 +68,30 @@ do (jQuery) ->
           color  : '#FF0000'
         }]
       crimeCoefficient:
-        prevValue: 0
-        value: 0
-        setValue: (value) ->
-          @prevValue = @value
-          @value = value
-        isChanged: ->
-          @prevValue != @value
-        toString: (opts) ->
-          opts = $.extend {
-              padding: true
-            }, opts
+        $.extend new ValueWithPrev(0),
+          toString: (opts) ->
+            opts = $.extend {
+                padding: true
+              }, opts
 
-          str = (Math.floor(@value.toString() * 10) / 10).toString()
-          str += '.0' if @value == parseInt(@value)
+            str = (Math.floor(@current.toString() * 10) / 10).toString()
+            str += '.0' if @current == parseInt(@current)
 
-          if opts?.padding
-            ('   ' + str).slice(-5)
-          else
-            str
+            if opts?.padding
+              ('   ' + str).slice(-5)
+            else
+              str
       getTargetState: ->
         @getMaxCCBorder().message
       indicatorColor: new ValueWithPrev('#000000')
       getIndicatorColor: ->
         @indicatorColor.set @getMaxCCBorder().color
       getMaxCCBorder: ->
-        ccc = @crimeCoefficient.value
+        ccc = @crimeCoefficient.current
         for border in @CCBORDERS by -1
           return border if ccc >= border.value
       getCCBorder: ->
-        ccc = @crimeCoefficient.value
+        ccc = @crimeCoefficient.current
         result = 0
         minDiff = Infinity
         for border in @CCBORDERS
@@ -122,9 +116,9 @@ do (jQuery) ->
       if pointedElem
         if pointedElem.tagName.toLowerCase() == 'a'
           hash = parseInt(md5(pointedElem.href), 16)
-          dominator.crimeCoefficient.setValue(hash % 1000)
+          dominator.crimeCoefficient.set(hash % 1000)
         else
-          dominator.crimeCoefficient.setValue(0)
+          dominator.crimeCoefficient.set(0)
 
     indicateAnime = null
     updateCCAnime = null

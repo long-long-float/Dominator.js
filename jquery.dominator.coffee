@@ -42,6 +42,14 @@ do (jQuery) ->
         context.fillRect(-5, -10, w * 1.5, 13)
       drawText text, fontSize, false
 
+    class ValueWithPrev
+      constructor: (@current) -> @prev = @current
+      set: (value) ->
+        @prev = @current
+        @current = value
+        return @
+      isChanged: -> @current != @prev
+
     dominator =
       CCBORDERS: [
         {
@@ -81,9 +89,9 @@ do (jQuery) ->
             str
       getTargetState: ->
         @getMaxCCBorder().message
+      indicatorColor: new ValueWithPrev('#000000')
       getIndicatorColor: ->
-        @getMaxCCBorder().color
-      currentIndicatorColor: '#000000'
+        @indicatorColor.set @getMaxCCBorder().color
       getMaxCCBorder: ->
         ccc = @crimeCoefficient.value
         for border in @CCBORDERS by -1
@@ -155,15 +163,13 @@ do (jQuery) ->
 
       contextState -> #indicator
         ci = dominator.getIndicatorColor()
-        if ci != dominator.currentIndicatorColor
-          dominator.currentIndicatorColor = ci
-
+        if ci.isChanged()
           indicateAnime = new Animation {radian: 0}, ->
             contextState =>
               context.translate(-CIRCLE_RADIUS * 2, CIRCLE_RADIUS * 4)
 
               context.rotate(@radian)
-              context.fillStyle = dominator.currentIndicatorColor
+              context.fillStyle = ci.current
 
               for i in [1..3]
                 context.rotate(1 / 25 * Math.PI)

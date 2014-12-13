@@ -81,8 +81,9 @@ do (jQuery) ->
               ('   ' + str).slice(-5)
             else
               str
+      targetState: new ValueWithPrev('')
       getTargetState: ->
-        @getMaxCCBorder().message
+        @targetState.set @getMaxCCBorder().message
       indicatorColor: new ValueWithPrev('#000000')
       getIndicatorColor: ->
         @indicatorColor.set @getMaxCCBorder().color
@@ -90,6 +91,7 @@ do (jQuery) ->
         ccc = @crimeCoefficient.current
         for border in @CCBORDERS by -1
           return border if ccc >= border.value
+      ccBorder: new ValueWithPrev(0)
       getCCBorder: ->
         ccc = @crimeCoefficient.current
         result = 0
@@ -100,7 +102,7 @@ do (jQuery) ->
             result = border.value
             minDiff = diff
 
-        return result
+        return @ccBorder.set result
 
     mousePos =
       x: 0
@@ -111,6 +113,14 @@ do (jQuery) ->
       update: ->
         @updater.call(@locals)
 
+    createFadeOutAnimation = (w, h) ->
+      new Animation {opaque: 1}, ->
+        contextState =>
+          context.fillStyle = "rgba(0, 242, 213, #{@opaque})"
+          context.fillRect(0, 0, w, h)
+
+          @opaque -= 0.1 if @opaque != 0
+
     update = ->
       pointedElem = document.elementFromPoint(mousePos.x, mousePos.y)
       if pointedElem
@@ -120,8 +130,10 @@ do (jQuery) ->
         else
           dominator.crimeCoefficient.set(0)
 
-    indicateAnime = null
-    updateCCAnime = null
+    indicateAnime          = null
+    updateCCAnime          = null
+    updateCCBorderAnime    = null
+    updateTargetStateAnime = null
 
     draw = ->
       context.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
@@ -193,29 +205,43 @@ do (jQuery) ->
           drawText(cc, 40)
 
           context.translate(w - 90, 0)
+
+          ccw = getTextWidth(dominator.crimeCoefficient.toString(padding: false), 40)
           if dominator.crimeCoefficient.isChanged()
-            updateCCAnime = new Animation {opaque: 1}, ->
-              contextState =>
-                context.fillStyle = "rgba(0, 242, 213, #{@opaque})"
+            updateCCAnime = createFadeOutAnimation(ccw, 30)
 
-                w = getTextWidth(dominator.crimeCoefficient.toString(padding: false), 40)
-                context.translate(92 - w, -26)
-                context.fillRect(0, 0, w, 30)
-
-                @opaque -= 0.1 if @opaque != 0
-
-          updateCCAnime?.update()
+          contextState ->
+            context.translate(92 - ccw, -26)
+            updateCCAnime?.update()
 
           context.translate(90, 0)
           drawText('-', 40)
           context.translate(getTextWidth('-', 40), 0)
-          drawText(dominator.getCCBorder(), 25)
+          ccBorder = dominator.getCCBorder()
+          if ccBorder.isChanged()
+            w = getTextWidth(ccBorder.current.toString(), 25)
+            updateCCBorderAnime = createFadeOutAnimation(w, 18)
+
+          contextState ->
+            context.translate(0, -15)
+            updateCCBorderAnime?.update()
+
+          drawText(ccBorder.current, 25)
 
         context.translate(0, 20)
         drawTextWithBanner('TARGET:', 10)
 
         context.translate(0, 20)
-        drawText(dominator.getTargetState(), 20)
+        targetState = dominator.getTargetState()
+        if targetState.isChanged()
+          w = getTextWidth(targetState.current, 20)
+          updateTargetStateAnime = createFadeOutAnimation(w, 20)
+
+        drawText(targetState.current, 20)
+
+        contextState ->
+          context.translate(0, -18)
+          updateTargetStateAnime.update()
 
     setInterval (->
       update()
